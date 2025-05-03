@@ -1,0 +1,228 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id            Int       @id @default(autoincrement())
+  name          String
+  email         String    @unique
+  password_hash String
+  departmentId  Int
+  classId       Int
+  sectionId     Int
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  department    Department @relation(fields: [departmentId], references: [id])
+  class         Class      @relation(fields: [classId], references: [id])
+  section       Section    @relation(fields: [sectionId], references: [id])
+  enrollments   StudentCourseEnrollment[]
+  attendance    Attendance[]
+  invoices      Invoice[]
+}
+
+model Faculty {
+  id            Int       @id @default(autoincrement())
+  name          String
+  email         String    @unique
+  password_hash String
+  departmentId  Int
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  department    Department @relation(fields: [departmentId], references: [id])
+  sections      Section[]  @relation("SectionAdvisor")
+  schedules     ClassSchedule[]
+  leaveRequests LeaveRequest[]
+}
+
+model Admin {
+  id            Int       @id @default(autoincrement())
+  name          String
+  email         String    @unique
+  password_hash String
+  role          String    @default("admin")
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  events        Event[]   @relation("EventAdmin")
+}
+
+model Department {
+  id       Int      @id @default(autoincrement())
+  name     String
+  code     String
+
+  students Student[]
+  faculty  Faculty[]
+  classes  Class[]
+  courses  Course[]
+}
+
+model Class {
+  id           Int       @id @default(autoincrement())
+  name         String
+  departmentId Int
+
+  department   Department @relation(fields: [departmentId], references: [id])
+  students     Student[]
+  sections     Section[]
+  schedules    ClassSchedule[]
+}
+
+model Section {
+  id        Int      @id @default(autoincrement())
+  name      String
+  classId   Int
+  room_no   String
+  advisorId Int
+
+  class     Class    @relation(fields: [classId], references: [id])
+  advisor   Faculty  @relation("SectionAdvisor", fields: [advisorId], references: [id])
+  students  Student[]
+  schedules ClassSchedule[]
+}
+
+model Course {
+  id           Int      @id @default(autoincrement())
+  name         String
+  course_code  String   @unique
+  departmentId Int
+  credit_hours Int
+
+  department   Department @relation(fields: [departmentId], references: [id])
+  schedules    ClassSchedule[]
+  enrollments  StudentCourseEnrollment[]
+  attendance   Attendance[]
+}
+
+model ClassSchedule {
+  id          Int      @id @default(autoincrement())
+  courseId    Int
+  facultyId   Int
+  classId     Int
+  sectionId   Int
+  day_of_week String
+  start_time  DateTime
+  end_time    DateTime
+
+  course      Course   @relation(fields: [courseId], references: [id])
+  faculty     Faculty  @relation(fields: [facultyId], references: [id])
+  class       Class    @relation(fields: [classId], references: [id])
+  section     Section  @relation(fields: [sectionId], references: [id])
+}
+
+model StudentCourseEnrollment {
+  id          Int      @id @default(autoincrement())
+  studentId   Int
+  courseId    Int
+  enrolled_at DateTime @default(now())
+
+  student     Student  @relation(fields: [studentId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, courseId]) // prevent duplicate enrollments
+}
+
+model Attendance {
+  id         Int      @id @default(autoincrement())
+  studentId  Int
+  courseId   Int
+  date       DateTime
+  status     AttendanceStatus
+
+  student    Student  @relation(fields: [studentId], references: [id])
+  course     Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, courseId, date]) // prevent duplicate attendance entries per day
+}
+
+enum AttendanceStatus {
+  Present
+  Absent
+  Late
+}
+
+model Invoice {
+  id           Int      @id @default(autoincrement())
+  studentId    Int
+  amount       Float
+  due_date     DateTime
+  paid         Boolean
+  generated_at DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  student      Student  @relation(fields: [studentId], references: [id])
+}
+
+model Message {
+  id             Int      @id @default(autoincrement())
+  sender_id      Int
+  sender_type    UserType
+  receiver_id    Int
+  receiver_type  UserType
+  subject        String
+  body           String
+  sent_at        DateTime @default(now())
+}
+
+enum UserType {
+  student
+  faculty
+  admin
+}
+
+model Event {
+  id               Int              @id @default(autoincrement())
+  title            String
+  description      String
+  event_date       DateTime
+  created_by_admin Int
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  admin            Admin            @relation("EventAdmin", fields: [created_by_admin], references: [id])
+  audiences        EventAudience[]
+}
+
+model EventAudience {
+  id            Int             @id @default(autoincrement())
+  eventId       Int
+  audience_type AudienceType
+  audience_id   Int
+
+  event         Event           @relation(fields: [eventId], references: [id])
+}
+
+enum AudienceType {
+  student
+  faculty
+  class
+  department
+  all
+}
+
+model LeaveRequest {
+  id          Int      @id @default(autoincrement())
+  facultyId   Int
+  leave_date  DateTime
+  reason      String
+  status      LeaveStatus
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  faculty     Faculty  @relation(fields: [facultyId], references: [id])
+}
+
+enum LeaveStatus {
+  Pending
+  Approved
+  Rejected
+}

@@ -1,0 +1,40 @@
+{
+  "name": "edusync",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed:1": "node prisma/seeds/1_departments.js",
+    "seed:2": "node prisma/seeds/2_classes.js",
+    "seed:3": "node prisma/seeds/3_sections.js",
+    "seed:4": "node prisma/seeds/4_faculty.js",
+    "seed:5": "node prisma/seeds/5_students.js",
+    "seed:6": "node prisma/seeds/6_courses.js",
+    "seed:7": "node prisma/seeds/7_schedules.js",
+    "seed:8": "node prisma/seeds/8_enrollments.js",
+    "seed:9": "node prisma/seeds/9_attendance.js",
+    "seed:10": "node prisma/seeds/10_admins.js",
+    "seed:11": "node prisma/seeds/11_events.js",
+    "seed:12": "node prisma/seeds/12_event_audiences.js",
+    "seed:13": "node prisma/seeds/13_invoices.js",
+    "seed:14": "node prisma/seeds/14_leave_requests.js",
+    "seed:all": "npm run seed:1 && npm run seed:2 && npm run seed:3 && npm run seed:4 && npm run seed:5 && npm run seed:6 && npm run seed:7 && npm run seed:8 && npm run seed:9 && npm run seed:10 && npm run seed:11 && npm run seed:12 && npm run seed:13 && npm run seed:14"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.7.0",
+    "@supabase/supabase-js": "^2.49.4",
+    "dotenv": "^16.5.0",
+    "next": "15.3.1",
+    "pg": "^8.15.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "prisma": "^6.7.0",
+    "tailwindcss": "^4"
+  }
+}
