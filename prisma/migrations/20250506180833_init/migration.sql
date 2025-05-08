@@ -1,9 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "AttendanceStatus" AS ENUM ('Present', 'Absent', 'Late');
 
@@ -15,9 +9,6 @@ CREATE TYPE "AudienceType" AS ENUM ('student', 'faculty', 'class', 'department',
 
 -- CreateEnum
 CREATE TYPE "LeaveStatus" AS ENUM ('Pending', 'Approved', 'Rejected');
-
--- DropTable
-DROP TABLE "User";
 
 -- CreateTable
 CREATE TABLE "Student" (
@@ -198,6 +189,33 @@ CREATE TABLE "LeaveRequest" (
     CONSTRAINT "LeaveRequest_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "CourseClass" (
+    "id" SERIAL NOT NULL,
+    "courseId" INTEGER NOT NULL,
+    "classId" INTEGER NOT NULL,
+
+    CONSTRAINT "CourseClass_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CourseSection" (
+    "id" SERIAL NOT NULL,
+    "courseId" INTEGER NOT NULL,
+    "sectionId" INTEGER NOT NULL,
+
+    CONSTRAINT "CourseSection_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "FacultyCourse" (
+    "id" SERIAL NOT NULL,
+    "facultyId" INTEGER NOT NULL,
+    "courseId" INTEGER NOT NULL,
+
+    CONSTRAINT "FacultyCourse_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Student_email_key" ON "Student"("email");
 
@@ -215,6 +233,15 @@ CREATE UNIQUE INDEX "StudentCourseEnrollment_studentId_courseId_key" ON "Student
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Attendance_studentId_courseId_date_key" ON "Attendance"("studentId", "courseId", "date");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CourseClass_courseId_classId_key" ON "CourseClass"("courseId", "classId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CourseSection_courseId_sectionId_key" ON "CourseSection"("courseId", "sectionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "FacultyCourse_facultyId_courseId_key" ON "FacultyCourse"("facultyId", "courseId");
 
 -- AddForeignKey
 ALTER TABLE "Student" ADD CONSTRAINT "Student_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "Department"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -275,3 +302,21 @@ ALTER TABLE "EventAudience" ADD CONSTRAINT "EventAudience_eventId_fkey" FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE "LeaveRequest" ADD CONSTRAINT "LeaveRequest_facultyId_fkey" FOREIGN KEY ("facultyId") REFERENCES "Faculty"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CourseClass" ADD CONSTRAINT "CourseClass_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CourseClass" ADD CONSTRAINT "CourseClass_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CourseSection" ADD CONSTRAINT "CourseSection_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CourseSection" ADD CONSTRAINT "CourseSection_sectionId_fkey" FOREIGN KEY ("sectionId") REFERENCES "Section"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FacultyCourse" ADD CONSTRAINT "FacultyCourse_facultyId_fkey" FOREIGN KEY ("facultyId") REFERENCES "Faculty"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FacultyCourse" ADD CONSTRAINT "FacultyCourse_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
