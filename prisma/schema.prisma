@@ -1,4 +1,4 @@
-// schema.prisma
+// UPDATED schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -10,97 +10,110 @@ datasource db {
 }
 
 model Student {
-  id            Int       @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   name          String
-  email         String    @unique
+  email         String   @unique
   password_hash String
   departmentId  Int
   classId       Int
   sectionId     Int
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
-  department    Department @relation(fields: [departmentId], references: [id])
-  class         Class      @relation(fields: [classId], references: [id])
-  section       Section    @relation(fields: [sectionId], references: [id])
-  enrollments   StudentCourseEnrollment[]
-  attendance    Attendance[]
-  invoices      Invoice[]
+  department  Department                @relation(fields: [departmentId], references: [id])
+  class       Class                     @relation(fields: [classId], references: [id])
+  section     Section                   @relation(fields: [sectionId], references: [id])
+  enrollments StudentCourseEnrollment[]
+  attendance  Attendance[]
+  invoices    Invoice[]
 }
 
 model Faculty {
-  id            Int       @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   name          String
-  email         String    @unique
+  email         String   @unique
   password_hash String
   departmentId  Int
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
-  department    Department @relation(fields: [departmentId], references: [id])
-  sections      Section[]  @relation("SectionAdvisor")
+  department    Department      @relation(fields: [departmentId], references: [id])
+  sections      Section[]       @relation("SectionAdvisor")
   schedules     ClassSchedule[]
   leaveRequests LeaveRequest[]
+  courses       FacultyCourse[]
 }
 
 model Admin {
-  id            Int       @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   name          String
-  email         String    @unique
+  email         String   @unique
   password_hash String
-  role          String    @default("admin")
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
+  role          String   @default("admin")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
-  events        Event[]   @relation("EventAdmin")
+  events Event[] @relation("EventAdmin")
 }
 
 model Department {
-  id       Int      @id @default(autoincrement())
-  name     String
-  code     String
+  id   Int    @id @default(autoincrement())
+  name String
+  code String @unique
 
   students Student[]
   faculty  Faculty[]
   classes  Class[]
   courses  Course[]
+  leaveRequests LeaveRequest[]
 }
 
 model Class {
-  id           Int       @id @default(autoincrement())
-  name         String
+  id           Int    @id @default(autoincrement())
+  name         String @unique
   departmentId Int
 
-  department   Department @relation(fields: [departmentId], references: [id])
-  students     Student[]
-  sections     Section[]
-  schedules    ClassSchedule[]
+  department  Department      @relation(fields: [departmentId], references: [id])
+  students    Student[]
+  sections    Section[]
+  schedules   ClassSchedule[]
+  courseLinks CourseClass[]
+  leaveRequests LeaveRequest[]
 }
 
 model Section {
-  id        Int      @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   name      String
   classId   Int
   room_no   String
   advisorId Int
 
-  class     Class    @relation(fields: [classId], references: [id])
-  advisor   Faculty  @relation("SectionAdvisor", fields: [advisorId], references: [id])
-  students  Student[]
-  schedules ClassSchedule[]
+  leaveRequests LeaveRequest[]
+
+  class       Class           @relation(fields: [classId], references: [id])
+  advisor     Faculty         @relation("SectionAdvisor", fields: [advisorId], references: [id])
+
+  @@unique([classId, name])
+  students    Student[]
+  schedules   ClassSchedule[]
+  courseLinks CourseSection[]
 }
 
 model Course {
-  id           Int      @id @default(autoincrement())
+  id           Int    @id @default(autoincrement())
   name         String
-  course_code  String   @unique
+  course_code  String @unique
   departmentId Int
   credit_hours Int
 
-  department   Department @relation(fields: [departmentId], references: [id])
+  department   Department                @relation(fields: [departmentId], references: [id])
   schedules    ClassSchedule[]
   enrollments  StudentCourseEnrollment[]
   attendance   Attendance[]
+  classLinks   CourseClass[]
+  sectionLinks CourseSection[]
+  facultyLinks FacultyCourse[]
+  leaveRequests LeaveRequest[]
 }
 
 model ClassSchedule {
@@ -113,10 +126,10 @@ model ClassSchedule {
   start_time  DateTime
   end_time    DateTime
 
-  course      Course   @relation(fields: [courseId], references: [id])
-  faculty     Faculty  @relation(fields: [facultyId], references: [id])
-  class       Class    @relation(fields: [classId], references: [id])
-  section     Section  @relation(fields: [sectionId], references: [id])
+  course  Course  @relation(fields: [courseId], references: [id])
+  faculty Faculty @relation(fields: [facultyId], references: [id])
+  class   Class   @relation(fields: [classId], references: [id])
+  section Section @relation(fields: [sectionId], references: [id])
 }
 
 model StudentCourseEnrollment {
@@ -125,23 +138,23 @@ model StudentCourseEnrollment {
   courseId    Int
   enrolled_at DateTime @default(now())
 
-  student     Student  @relation(fields: [studentId], references: [id])
-  course      Course   @relation(fields: [courseId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+  course  Course  @relation(fields: [courseId], references: [id])
 
-  @@unique([studentId, courseId]) // prevent duplicate enrollments
+  @@unique([studentId, courseId])
 }
 
 model Attendance {
-  id         Int      @id @default(autoincrement())
-  studentId  Int
-  courseId   Int
-  date       DateTime
-  status     AttendanceStatus
+  id        Int              @id @default(autoincrement())
+  studentId Int
+  courseId  Int
+  date      DateTime
+  status    AttendanceStatus
 
-  student    Student  @relation(fields: [studentId], references: [id])
-  course     Course   @relation(fields: [courseId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+  course  Course  @relation(fields: [courseId], references: [id])
 
-  @@unique([studentId, courseId, date]) // prevent duplicate attendance entries per day
+  @@unique([studentId, courseId, date])
 }
 
 enum AttendanceStatus {
@@ -152,6 +165,7 @@ enum AttendanceStatus {
 
 model Invoice {
   id           Int      @id @default(autoincrement())
+  invoice_number String @unique
   studentId    Int
   amount       Float
   due_date     DateTime
@@ -159,18 +173,18 @@ model Invoice {
   generated_at DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  student      Student  @relation(fields: [studentId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 }
 
 model Message {
-  id             Int      @id @default(autoincrement())
-  sender_id      Int
-  sender_type    UserType
-  receiver_id    Int
-  receiver_type  UserType
-  subject        String
-  body           String
-  sent_at        DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  sender_id     Int
+  sender_type   UserType
+  receiver_id   Int
+  receiver_type UserType
+  subject       String
+  body          String
+  sent_at       DateTime @default(now())
 }
 
 enum UserType {
@@ -180,25 +194,25 @@ enum UserType {
 }
 
 model Event {
-  id               Int              @id @default(autoincrement())
-  title            String
+  id               Int      @id @default(autoincrement())
+  title            String @unique
   description      String
   event_date       DateTime
   created_by_admin Int
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
 
-  admin            Admin            @relation("EventAdmin", fields: [created_by_admin], references: [id])
-  audiences        EventAudience[]
+  admin     Admin           @relation("EventAdmin", fields: [created_by_admin], references: [id])
+  audiences EventAudience[]
 }
 
 model EventAudience {
-  id            Int             @id @default(autoincrement())
+  id            Int          @id @default(autoincrement())
   eventId       Int
   audience_type AudienceType
   audience_id   Int
 
-  event         Event           @relation(fields: [eventId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
 }
 
 enum AudienceType {
@@ -210,19 +224,65 @@ enum AudienceType {
 }
 
 model LeaveRequest {
-  id          Int      @id @default(autoincrement())
-  facultyId   Int
-  leave_date  DateTime
-  reason      String
-  status      LeaveStatus
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id           Int         @id @default(autoincrement())
+  facultyId    Int
+  departmentId Int
+  classId      Int
+  sectionId    Int
+  courseId     Int
+  leave_date   DateTime
+  reason       String
+  status       LeaveStatus
+  created_at   DateTime    @default(now())
+  updated_at   DateTime    @updatedAt
 
-  faculty     Faculty  @relation(fields: [facultyId], references: [id])
+  faculty    Faculty    @relation(fields: [facultyId], references: [id])
+  department Department @relation(fields: [departmentId], references: [id])
+  class      Class      @relation(fields: [classId], references: [id])
+  section    Section    @relation(fields: [sectionId], references: [id])
+  course     Course     @relation(fields: [courseId], references: [id])
 }
+
 
 enum LeaveStatus {
   Pending
   Approved
   Rejected
+}
+
+// New Join Tables
+
+model CourseClass {
+  id       Int @id @default(autoincrement())
+  courseId Int
+  classId  Int
+
+  course Course @relation(fields: [courseId], references: [id])
+  class  Class  @relation(fields: [classId], references: [id])
+  sections CourseSection[] @relation("CourseClassToCourseSection")
+
+  @@unique([courseId, classId])
+}
+
+model CourseSection {
+  id            Int @id @default(autoincrement())
+  courseClassId Int
+  sectionId     Int
+  courseClass CourseClass @relation("CourseClassToCourseSection", fields: [courseClassId], references: [id])
+  section     Section     @relation(fields: [sectionId], references: [id])
+  courseId     Int
+  course       Course      @relation(fields: [courseId], references: [id])
+
+  @@unique([courseClassId, sectionId])
+}
+
+model FacultyCourse {
+  id        Int @id @default(autoincrement())
+  facultyId Int
+  courseId  Int
+
+  faculty Faculty @relation(fields: [facultyId], references: [id])
+  course  Course  @relation(fields: [courseId], references: [id])
+
+  @@unique([facultyId, courseId])
 }

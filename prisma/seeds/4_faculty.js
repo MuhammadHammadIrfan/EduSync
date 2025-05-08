@@ -1,24 +1,56 @@
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
+
 const prisma = new PrismaClient();
 
-async function main() {
-  const dept = await prisma.department.findFirst({ where: { code: 'CS' } });
+async function seedFaculty() {
+  const password = 'faculty@123';
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-  await prisma.faculty.upsert({
-    where: { email: 'alice@uni.edu' },
-    update: {}, // no updates for now
-    create: {
-      name: 'Dr. Alice',
-      email: 'alice@uni.edu',
-      password_hash: 'hashed_pw',
-      departmentId: dept.id,
-      created_at: new Date(),
-    },
+  const departments = await prisma.department.findMany();
+  const csDept = departments.find((d) => d.code === 'CS');
+  const seDept = departments.find((d) => d.code === 'SE');
+  const aiDept = departments.find((d) => d.code === 'AI');
+
+  if (!csDept || !seDept || !aiDept) {
+    console.error('❌ Required departments not found');
+    return;
+  }
+
+  await prisma.faculty.createMany({
+    data: [
+      {
+        name: 'Dr. Junaid Arif',
+        email: 'junaid.arif@faculty.edusync.com',
+        password_hash: hashedPassword,
+        departmentId: csDept.id,
+      },
+      {
+        name: 'Dr. Sana Khalid',
+        email: 'sana.khalid@faculty.edusync.com',
+        password_hash: hashedPassword,
+        departmentId: seDept.id,
+      },
+      {
+        name: 'Prof. Ahmad Raza',
+        email: 'ahmad.raza@faculty.edusync.com',
+        password_hash: hashedPassword,
+        departmentId: aiDept.id,
+      },
+      {
+        name: 'Dr. Hira Anwar',
+        email: 'hira.anwar@faculty.edusync.com',
+        password_hash: hashedPassword,
+        departmentId: csDept.id,
+      },
+    ],
   });
 
-  console.log('More faculty seeded.');
+  console.log('✅ Faculty seeded successfully');
+  await prisma.$disconnect();
 }
 
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());
+seedFaculty().catch((e) => {
+  console.error(e);
+  prisma.$disconnect();
+});
