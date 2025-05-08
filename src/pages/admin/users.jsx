@@ -5,7 +5,7 @@ export async function getServerSideProps(context) {
 }
 
 
-export default function AdminDashboard() {
+export default function AdminUsers() {
     return(
         <>
             <h1>This is admin Users</h1>

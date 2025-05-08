@@ -1,5 +1,3 @@
-"use client"
-
 import { requireRole } from "@/lib/requireRole"
 import { useState, useEffect } from "react"
 import Head from "next/head"
