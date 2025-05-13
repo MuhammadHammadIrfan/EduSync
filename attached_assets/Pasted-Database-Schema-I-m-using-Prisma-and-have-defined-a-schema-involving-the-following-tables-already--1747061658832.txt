@@ -1,0 +1,101 @@
+Database Schema: I’m using Prisma and have defined a schema involving the following tables (already finalized in schema.prisma): // UPDATED schema.prisma
+
+generator client { provider = "prisma-client-js" }
+
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+
+model Student { id Int @id @default(autoincrement()) name String email String @unique password_hash String departmentId Int classId Int sectionId Int created_at DateTime @default(now()) updated_at DateTime @updatedAt
+
+department Department @relation(fields: [departmentId], references: [id]) class Class @relation(fields: [classId], references: [id]) section Section @relation(fields: [sectionId], references: [id]) enrollments StudentCourseEnrollment[] attendance Attendance[] invoices Invoice[] }
+
+model Faculty { id Int @id @default(autoincrement()) name String email String @unique password_hash String departmentId Int created_at DateTime @default(now()) updated_at DateTime @updatedAt
+
+department Department @relation(fields: [departmentId], references: [id]) sections Section[] @relation("SectionAdvisor") schedules ClassSchedule[] leaveRequests LeaveRequest[] courses FacultyCourse[] }
+
+model Admin { id Int @id @default(autoincrement()) name String email String @unique password_hash String role String @default("admin") created_at DateTime @default(now()) updated_at DateTime @updatedAt
+
+events Event[] @relation("EventAdmin") }
+
+model Department { id Int @id @default(autoincrement()) name String code String @unique
+
+students Student[] faculty Faculty[] classes Class[] courses Course[] leaveRequests LeaveRequest[] }
+
+model Class { id Int @id @default(autoincrement()) name String @unique departmentId Int
+
+department Department @relation(fields: [departmentId], references: [id]) students Student[] sections Section[] schedules ClassSchedule[] courseLinks CourseClass[] leaveRequests LeaveRequest[] }
+
+model Section { id Int @id @default(autoincrement()) name String classId Int room_no String advisorId Int
+
+leaveRequests LeaveRequest[]
+
+class Class @relation(fields: [classId], references: [id]) advisor Faculty @relation("SectionAdvisor", fields: [advisorId], references: [id])
+
+@@unique([classId, name]) students Student[] schedules ClassSchedule[] courseLinks CourseSection[] }
+
+model Course { id Int @id @default(autoincrement()) name String course_code String @unique departmentId Int credit_hours Int
+
+department Department @relation(fields: [departmentId], references: [id]) schedules ClassSchedule[] enrollments StudentCourseEnrollment[] attendance Attendance[] classLinks CourseClass[] sectionLinks CourseSection[] facultyLinks FacultyCourse[] leaveRequests LeaveRequest[] }
+
+model ClassSchedule { id Int @id @default(autoincrement()) courseId Int facultyId Int classId Int sectionId Int day_of_week String start_time DateTime end_time DateTime
+
+course Course @relation(fields: [courseId], references: [id]) faculty Faculty @relation(fields: [facultyId], references: [id]) class Class @relation(fields: [classId], references: [id]) section Section @relation(fields: [sectionId], references: [id]) }
+
+model StudentCourseEnrollment { id Int @id @default(autoincrement()) studentId Int courseId Int enrolled_at DateTime @default(now())
+
+student Student @relation(fields: [studentId], references: [id]) course Course @relation(fields: [courseId], references: [id])
+
+@@unique([studentId, courseId]) }
+
+model Attendance { id Int @id @default(autoincrement()) studentId Int courseId Int date DateTime status AttendanceStatus
+
+student Student @relation(fields: [studentId], references: [id]) course Course @relation(fields: [courseId], references: [id])
+
+@@unique([studentId, courseId, date]) }
+
+enum AttendanceStatus { Present Absent Late }
+
+model Invoice { id Int @id @default(autoincrement()) invoice_number String @unique studentId Int amount Float due_date DateTime paid Boolean generated_at DateTime @default(now()) updated_at DateTime @updatedAt
+
+student Student @relation(fields: [studentId], references: [id]) }
+
+model Message { id Int @id @default(autoincrement()) sender_id Int sender_type UserType receiver_id Int receiver_type UserType subject String body String sent_at DateTime @default(now()) }
+
+enum UserType { student faculty admin }
+
+model Event { id Int @id @default(autoincrement()) title String @unique description String event_date DateTime created_by_admin Int created_at DateTime @default(now()) updated_at DateTime @updatedAt
+
+admin Admin @relation("EventAdmin", fields: [created_by_admin], references: [id]) audiences EventAudience[] }
+
+model EventAudience { id Int @id @default(autoincrement()) eventId Int audience_type AudienceType audience_id Int
+
+event Event @relation(fields: [eventId], references: [id]) }
+
+enum AudienceType { student faculty class department all }
+
+model LeaveRequest { id Int @id @default(autoincrement()) facultyId Int departmentId Int classId Int sectionId Int courseId Int leave_date DateTime reason String status LeaveStatus created_at DateTime @default(now()) updated_at DateTime @updatedAt
+
+faculty Faculty @relation(fields: [facultyId], references: [id]) department Department @relation(fields: [departmentId], references: [id]) class Class @relation(fields: [classId], references: [id]) section Section @relation(fields: [sectionId], references: [id]) course Course @relation(fields: [courseId], references: [id]) }
+
+enum LeaveStatus { Pending Approved Rejected }
+
+// New Join Tables
+
+model CourseClass { id Int @id @default(autoincrement()) courseId Int classId Int
+
+course Course @relation(fields: [courseId], references: [id]) class Class @relation(fields: [classId], references: [id]) sections CourseSection[] @relation("CourseClassToCourseSection")
+
+@@unique([courseId, classId]) }
+
+model CourseSection { id Int @id @default(autoincrement()) courseClassId Int sectionId Int courseClass CourseClass @relation("CourseClassToCourseSection", fields: [courseClassId], references: [id]) section Section @relation(fields: [sectionId], references: [id]) courseId Int course Course @relation(fields: [courseId], references: [id])
+
+@@unique([courseClassId, sectionId]) }
+
+model FacultyCourse { id Int @id @default(autoincrement()) facultyId Int courseId Int
+
+faculty Faculty @relation(fields: [facultyId], references: [id]) course Course @relation(fields: [courseId], references: [id])
+
+@@unique([facultyId, courseId]) }
+
+Seeding: I’m inserting sample data for testing. I’ve created individual seed scripts for each table, named like:
+
+/prisma/seeds/ 01_departments.js 02_classes.js ... 14_leave_requests.js These are meant to be run in order, so dependent tables have the required data. But afterwards form project perspective we will be adding data handling logic in next js pages as per the projects requirements.

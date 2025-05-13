@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+.next/
+
+# Environment variables
+.env*
+!.env.example
+
+# Prisma
+/prisma/migrations/
+/prisma/*.db
+
+# Build output
+out/
+
+# Debug logs
+*.log
+
+# IDE/Editor
+.vscode/
+.idea/
+
+# System Files
+.DS_Store
