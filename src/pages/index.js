@@ -8,7 +8,7 @@ export default function Home() {
 
   useEffect(() => {
     // Redirect to student dashboard
-    router.push("/student/dashboard")
+    router.push("/faculty/dashboard")
   }, [router])
 
   return null

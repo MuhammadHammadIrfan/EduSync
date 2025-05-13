@@ -3,6 +3,7 @@ import {
   mockCurrentStudent,
   mockCurrentFaculty,
   getTodayClasses,
+  getFacultyTodayClasses, // ✅ Added this missing import
   getAttendanceByCourseSummary,
   mockCourses,
   mockFaculty,
@@ -19,80 +20,71 @@ import {
 
 // Function to get current student info
 export async function getCurrentStudent() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(mockCurrentStudent)
-    }, 500) // Simulate network delay
+    }, 500)
   })
 }
 
 // Function to get current faculty info
 export async function getCurrentFaculty() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(mockCurrentFaculty)
-    }, 500) // Simulate network delay
+    }, 500)
   })
 }
 
 // Function to get faculty statistics
 export async function getFacultyStats() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(mockFacultyStats)
-    }, 700) // Simulate network delay
+    }, 700)
   })
 }
 
 // Function to get today's classes for students
 export async function getTodayClassSchedule() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(getTodayClasses())
-    }, 700) // Simulate network delay
+    }, 700)
   })
 }
 
-// Function to get today's classes for faculty
+// ✅ Corrected: Function to get today's classes for faculty
 export async function getFacultyTodayClasses() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(getFacultyTodayClasses())
-    }, 700) // Simulate network delay
+      resolve(getFacultyTodayClasses()) // Uses imported mock function
+    }, 700)
   })
 }
 
 // Function to get full class schedule
 export async function getClassSchedule() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(mockSchedules)
-    }, 800) // Simulate network delay
+    }, 800)
   })
 }
 
 // Function to get attendance summary by course
 export async function getAttendanceSummary() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(getAttendanceByCourseSummary())
-    }, 800) // Simulate network delay
+    }, 800)
   })
 }
 
 // Function to get detailed attendance records for a specific course
 export async function getCourseAttendanceDetails(courseId) {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Get base attendance records from mock data
       let attendanceRecords = mockAttendance
         .filter((record) => record.courseId === courseId && record.studentId === mockCurrentStudent.id)
         .map((record) => ({
@@ -102,8 +94,6 @@ export async function getCourseAttendanceDetails(courseId) {
           courseId: record.courseId,
         }))
 
-      // Add additional hardcoded records for demonstration
-      // These will show up for any course that is clicked
       const today = new Date()
       const additionalRecords = [
         {
@@ -138,42 +128,36 @@ export async function getCourseAttendanceDetails(courseId) {
         },
       ]
 
-      // Combine existing and additional records
       attendanceRecords = [...attendanceRecords, ...additionalRecords]
 
       resolve(attendanceRecords)
-    }, 1000) // Simulate network delay
+    }, 1000)
   })
 }
 
 // Function to get student invoices
 export async function getStudentInvoices() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Filter invoices for the current student
       const studentInvoices = mockInvoices.filter((invoice) => invoice.studentId === mockCurrentStudent.id)
       resolve(studentInvoices)
-    }, 800) // Simulate network delay
+    }, 800)
   })
 }
 
 // Function to get upcoming events
 export async function getUpcomingEventsList() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(getUpcomingEventsFormatted())
-    }, 600) // Simulate network delay
+    }, 600)
   })
 }
 
 // Function to get student profile data
 export async function getStudentProfile() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Get enrolled courses with details
       const enrolledCourseIds = mockEnrollments
         .filter((e) => e.studentId === mockCurrentStudent.id)
         .map((e) => e.courseId)
@@ -181,7 +165,6 @@ export async function getStudentProfile() {
       const enrolledCourses = enrolledCourseIds.map((courseId) => {
         const course = mockCourses.find((c) => c.id === courseId)
 
-        // Get course schedule
         const courseSchedules = mockSchedules
           .filter(
             (s) =>
@@ -191,7 +174,6 @@ export async function getStudentProfile() {
           )
           .map((s) => s.day_of_week)
 
-        // Get course faculty
         const facultyId = mockSchedules.find((s) => s.courseId === courseId)?.facultyId
         const faculty = mockFaculty.find((f) => f.id === facultyId)?.name || "Unknown"
 
@@ -205,7 +187,6 @@ export async function getStudentProfile() {
         }
       })
 
-      // Create profile object
       const profile = {
         ...mockCurrentStudent,
         enrollmentDate: "September 1, 2022",
@@ -214,46 +195,40 @@ export async function getStudentProfile() {
       }
 
       resolve(profile)
-    }, 1000) // Simulate network delay
+    }, 1000)
   })
 }
 
 // Function to get received messages
 export async function getReceivedMessages() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Filter messages for the current student
       const studentMessages = mockReceivedMessages.filter(
         (message) => message.recipient_id === mockCurrentStudent.id && message.recipient_type === "student",
       )
       resolve(studentMessages)
-    }, 800) // Simulate network delay
+    }, 800)
   })
 }
 
 // Function to get sent messages
 export async function getSentMessages() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Filter messages sent by the current student
       const studentMessages = mockSentMessages.filter(
         (message) => message.sender_id === mockCurrentStudent.id && message.sender_type === "student",
       )
       resolve(studentMessages)
-    }, 800) // Simulate network delay
+    }, 800)
   })
 }
 
 // Function to get faculty leave requests
 export async function getFacultyLeaveRequests() {
-  // In the future, this will be an API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Filter leave requests for the current faculty
       const facultyLeaveRequests = mockLeaveRequests.filter((request) => request.faculty_id === mockCurrentFaculty.id)
       resolve(facultyLeaveRequests)
-    }, 800) // Simulate network delay
+    }, 800)
   })
 }
