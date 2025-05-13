@@ -5,7 +5,6 @@ import Head from "next/head"
 import { Calendar, Clock, FileText, Loader2, Plus } from "lucide-react"
 import FacultySidebar from "../../components/FacultySidebar"
 import { getFacultyLeaveRequests } from "../../utils/api"
-
 export default function LeaveRequests() {
   const [leaveRequests, setLeaveRequests] = useState([])
   const [loading, setLoading] = useState(true)
@@ -18,7 +17,6 @@ export default function LeaveRequests() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
-
   useEffect(() => {
     async function fetchLeaveRequests() {
       try {
@@ -34,7 +32,6 @@ export default function LeaveRequests() {
 
     fetchLeaveRequests()
   }, [])
-
   // Format date
   const formatDate = (dateString) => {
     const date = new Date(dateString)
@@ -44,7 +41,6 @@ export default function LeaveRequests() {
       day: "numeric",
     })
   }
-
   // Get status badge class
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -60,7 +56,6 @@ export default function LeaveRequests() {
         return "bg-gray-100 text-gray-800"
     }
   }
-
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -69,7 +64,6 @@ export default function LeaveRequests() {
       [name]: value,
     }))
   }
-
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault()
