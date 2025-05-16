@@ -12,6 +12,8 @@ import {
   mockInvoices,
 } from './mockData.js';
 
+
+
 // Function to get current student info
 export async function getCurrentStudent() {
   // In the future, this will be an API call

@@ -1,11 +1,9 @@
-"use client"
-
 import { requireRole } from "@/lib/requireRole"
 import { useState, useEffect } from "react"
 import Head from "next/head"
 import { User, Mail, GraduationCap, Users, Calendar, CreditCard, Clock, Loader2 } from "lucide-react"
 import StudentSidebar from "../../components/studentSiderbar"
-import { getStudentProfile } from "../../../utils/api"
+import { getStudentProfile } from "../../../utils/api/student"
 
 export async function getServerSideProps(context) {
     return requireRole(context, "student")
@@ -77,7 +75,7 @@ export default function StudentProfile() {
 
           <div className="bg-white rounded-lg shadow overflow-hidden">
             {/* Profile Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-16"></div>
+            <div className="bg-[#2c3e50] 0 h-16"></div>
 
             <div className="p-4 md:p-6">
               {/* Student Name and Basic Info */}
@@ -187,14 +185,31 @@ export default function StudentProfile() {
                           </span>
                         </div>
                         <div className="mt-2">
-                          <div className="flex items-center text-xs text-gray-600">
-                            <Clock className="h-3.5 w-3.5 mr-1" />
-                            <span>{course.schedule.join(", ")}</span>
-                          </div>
-                          <div className="flex items-center text-xs text-gray-600 mt-1">
-                            <User className="h-3.5 w-3.5 mr-1" />
-                            <span>Prof. {course.faculty}</span>
-                          </div>
+                          {/* Add conditional check for course.schedule */}
+                          {course.schedule ? (
+                            <div className="flex items-center text-xs text-gray-600">
+                              <Clock className="h-3.5 w-3.5 mr-1" />
+                              <span>{course.schedule.join(", ")}</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center text-xs text-gray-600">
+                              <Clock className="h-3.5 w-3.5 mr-1" />
+                              <span>Schedule not available</span>
+                            </div>
+                          )}
+                          
+                          {/* Add conditional check for course.faculty */}
+                          {course.faculty ? (
+                            <div className="flex items-center text-xs text-gray-600 mt-1">
+                              <User className="h-3.5 w-3.5 mr-1" />
+                              <span>Prof. {course.faculty}</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center text-xs text-gray-600 mt-1">
+                              <User className="h-3.5 w-3.5 mr-1" />
+                              <span>Faculty not assigned</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
