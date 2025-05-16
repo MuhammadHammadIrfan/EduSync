@@ -111,7 +111,7 @@ export default function LoginPage() {
             {error && <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">{error}</div>}
           </CardContent>
 
-          <CardFooter>
+          <CardFooter className="mt-4">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>

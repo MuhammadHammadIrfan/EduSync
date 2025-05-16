@@ -2,20 +2,22 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Seed Departments
-  const departmentsData = [
-    { name: 'Computer Science', code: 'CS' },
-    { name: 'Software Engineering', code: 'SE' },
-    { name: 'Artificial Intelligence', code: 'AI' },
-    { name: 'Data Science', code: 'DS' },
-    { name: 'Information Systems', code: 'IS' },
-    { name: 'Electrical Engineering', code: 'EE' },
-  ];
 
-  const departments = await prisma.department.createMany({
-    data: departmentsData,
-    skipDuplicates: true,
-  });
+
+  // // 1. Seed Departments, already added
+  // const departmentsData = [
+  //   { name: 'Computer Science', code: 'CS' },
+  //   { name: 'Software Engineering', code: 'SE' },
+  //   { name: 'Artificial Intelligence', code: 'AI' },
+  //   { name: 'Data Science', code: 'DS' },
+  //   { name: 'Information Systems', code: 'IS' },
+  //   { name: 'Electrical Engineering', code: 'EE' },
+  // ];
+
+  // const departments = await prisma.department.createMany({
+  //   data: departmentsData,
+  //   skipDuplicates: true,
+  // });
 
   // Retrieve department IDs
   const deptRecords = await prisma.department.findMany();

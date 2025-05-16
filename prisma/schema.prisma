@@ -20,12 +20,11 @@ model Student {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
-  department  Department                @relation(fields: [departmentId], references: [id])
-  class       Class                     @relation(fields: [classId], references: [id])
-  section     Section                   @relation(fields: [sectionId], references: [id])
-  enrollments StudentCourseEnrollment[]
-  attendance  Attendance[]
-  invoices    Invoice[]
+  department Department   @relation(fields: [departmentId], references: [id])
+  class      Class        @relation(fields: [classId], references: [id])
+  section    Section      @relation(fields: [sectionId], references: [id])
+  attendance Attendance[]
+  invoices   Invoice[]
 }
 
 model Faculty {
@@ -61,10 +60,10 @@ model Department {
   name String
   code String @unique
 
-  students Student[]
-  faculty  Faculty[]
-  classes  Class[]
-  courses  Course[]
+  students      Student[]
+  faculty       Faculty[]
+  classes       Class[]
+  courses       Course[]
   leaveRequests LeaveRequest[]
 }
 
@@ -73,12 +72,13 @@ model Class {
   name         String @unique
   departmentId Int
 
-  department  Department      @relation(fields: [departmentId], references: [id])
-  students    Student[]
-  sections    Section[]
-  schedules   ClassSchedule[]
-  courseLinks CourseClass[]
-  leaveRequests LeaveRequest[]
+  department      Department        @relation(fields: [departmentId], references: [id])
+  students        Student[]
+  sections        Section[]
+  schedules       ClassSchedule[]
+  courseLinks     CourseClass[]
+  leaveRequests   LeaveRequest[]
+  ClassEnrollment ClassEnrollment[]
 }
 
 model Section {
@@ -92,11 +92,11 @@ model Section {
 
   class       Class           @relation(fields: [classId], references: [id])
   advisor     Faculty         @relation("SectionAdvisor", fields: [advisorId], references: [id])
-
-  @@unique([classId, name])
   students    Student[]
   schedules   ClassSchedule[]
   courseLinks CourseSection[]
+
+  @@unique([classId, name])
 }
 
 model Course {
@@ -106,14 +106,14 @@ model Course {
   departmentId Int
   credit_hours Int
 
-  department   Department                @relation(fields: [departmentId], references: [id])
-  schedules    ClassSchedule[]
-  enrollments  StudentCourseEnrollment[]
-  attendance   Attendance[]
-  classLinks   CourseClass[]
-  sectionLinks CourseSection[]
-  facultyLinks FacultyCourse[]
+  department    Department        @relation(fields: [departmentId], references: [id])
+  schedules     ClassSchedule[]
+  attendance    Attendance[]
+  classLinks    CourseClass[]
+  sectionLinks  CourseSection[]
+  facultyLinks  FacultyCourse[]
   leaveRequests LeaveRequest[]
+  enrollments   ClassEnrollment[] // Updated to reference ClassEnrollment
 }
 
 model ClassSchedule {
@@ -132,16 +132,15 @@ model ClassSchedule {
   section Section @relation(fields: [sectionId], references: [id])
 }
 
-model StudentCourseEnrollment {
-  id          Int      @id @default(autoincrement())
-  studentId   Int
-  courseId    Int
-  enrolled_at DateTime @default(now())
+model ClassEnrollment {
+  id       Int @id @default(autoincrement())
+  classId  Int
+  courseId Int
 
-  student Student @relation(fields: [studentId], references: [id])
-  course  Course  @relation(fields: [courseId], references: [id])
+  class  Class  @relation(fields: [classId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
 
-  @@unique([studentId, courseId])
+  @@unique([classId, courseId])
 }
 
 model Attendance {
@@ -164,14 +163,14 @@ enum AttendanceStatus {
 }
 
 model Invoice {
-  id           Int      @id @default(autoincrement())
-  invoice_number String @unique
-  studentId    Int
-  amount       Float
-  due_date     DateTime
-  paid         Boolean
-  generated_at DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  invoice_number String   @unique
+  studentId      Int
+  amount         Float
+  due_date       DateTime
+  paid           Boolean
+  generated_at   DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
   student Student @relation(fields: [studentId], references: [id])
 }
@@ -195,7 +194,7 @@ enum UserType {
 
 model Event {
   id               Int      @id @default(autoincrement())
-  title            String @unique
+  title            String   @unique
   description      String
   event_date       DateTime
   created_by_admin Int
@@ -243,7 +242,6 @@ model LeaveRequest {
   course     Course     @relation(fields: [courseId], references: [id])
 }
 
-
 enum LeaveStatus {
   Pending
   Approved
@@ -257,21 +255,21 @@ model CourseClass {
   courseId Int
   classId  Int
 
-  course Course @relation(fields: [courseId], references: [id])
-  class  Class  @relation(fields: [classId], references: [id])
+  course   Course          @relation(fields: [courseId], references: [id])
+  class    Class           @relation(fields: [classId], references: [id])
   sections CourseSection[] @relation("CourseClassToCourseSection")
 
   @@unique([courseId, classId])
 }
 
 model CourseSection {
-  id            Int @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   courseClassId Int
   sectionId     Int
-  courseClass CourseClass @relation("CourseClassToCourseSection", fields: [courseClassId], references: [id])
-  section     Section     @relation(fields: [sectionId], references: [id])
-  courseId     Int
-  course       Course      @relation(fields: [courseId], references: [id])
+  courseClass   CourseClass @relation("CourseClassToCourseSection", fields: [courseClassId], references: [id])
+  section       Section     @relation(fields: [sectionId], references: [id])
+  courseId      Int
+  course        Course      @relation(fields: [courseId], references: [id])
 
   @@unique([courseClassId, sectionId])
 }

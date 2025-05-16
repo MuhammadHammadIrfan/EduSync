@@ -2,18 +2,14 @@ import { requireRole } from "@/lib/requireRole"
 
 import { useState, useEffect } from "react"
 import Head from "next/head"
-import { Calendar, Clock, CheckSquare, CalendarDays, Loader2 } from "lucide-react"
+import { Calendar, Clock, CheckSquare, CalendarDays, Loader2, AlertTriangle } from "lucide-react"
 import StudentSidebar from "../../components/studentSiderbar"
-import {
-  getCurrentStudent,
-  getTodayClassSchedule,
-  getAttendanceSummary,
-  getUpcomingEventsList,
-  getClassSchedule,
-} from "../../../utils/api"
+import { getStudentDashboard } from "../../../utils/api/student" 
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 export async function getServerSideProps(context) {
-    return requireRole(context, "student")
+  return requireRole(context, "student")
 }
 
 export default function StudentDashboard() {
@@ -21,68 +17,50 @@ export default function StudentDashboard() {
   const [todaysClasses, setTodaysClasses] = useState([])
   const [courseAttendance, setCourseAttendance] = useState([])
   const [upcomingEvents, setUpcomingEvents] = useState([])
-  const [loading, setLoading] = useState({
-    student: true,
-    classes: true,
-    attendance: true,
-    events: true,
-  })
-  const [error, setError] = useState({
-    student: null,
-    classes: null,
-    attendance: null,
-    events: null,
-  })
   const [schedule, setSchedule] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const studentData = await getCurrentStudent()
-        setStudent(studentData)
-        setLoading((prev) => ({ ...prev, student: false }))
-      } catch (err) {
-        setError((prev) => ({ ...prev, student: "Failed to load student data" }))
-        setLoading((prev) => ({ ...prev, student: false }))
+  async function fetchData() {
+    try {
+      console.log("Fetching dashboard data...");
+      const data = await getStudentDashboard();
+      
+      console.log("Dashboard data received:", data);
+      
+      if (!data) {
+        throw new Error("No data returned from the API");
       }
-
-      try {
-        const classesData = await getTodayClassSchedule()
-        setTodaysClasses(classesData)
-        setLoading((prev) => ({ ...prev, classes: false }))
-      } catch (err) {
-        setError((prev) => ({ ...prev, classes: "Failed to load class schedule" }))
-        setLoading((prev) => ({ ...prev, classes: false }))
-      }
-
-      try {
-        const attendanceData = await getAttendanceSummary()
-        setCourseAttendance(attendanceData)
-        setLoading((prev) => ({ ...prev, attendance: false }))
-      } catch (err) {
-        setError((prev) => ({ ...prev, attendance: "Failed to load attendance data" }))
-        setLoading((prev) => ({ ...prev, attendance: false }))
-      }
-
-      try {
-        const eventsData = await getUpcomingEventsList()
-        setUpcomingEvents(eventsData)
-        setLoading((prev) => ({ ...prev, events: false }))
-      } catch (err) {
-        setError((prev) => ({ ...prev, events: "Failed to load events" }))
-        setLoading((prev) => ({ ...prev, events: false }))
-      }
-
-      try {
-        const scheduleData = await getClassSchedule()
-        setSchedule(scheduleData)
-      } catch (err) {
-        console.error("Error fetching schedule:", err)
-      }
+      
+      // Process attendance data to ensure proper formatting
+      const processedAttendance = data.courseAttendance?.map(course => ({
+        ...course,
+        // Ensure percentage is calculated correctly or use API value
+        percentage: course.percentage || (course.total > 0 
+            ? Math.round((course.attended / course.total) * 100) 
+            : 0),
+        // Ensure attended and total are numbers
+        attended: Number(course.attended) || 0,
+        total: Number(course.total) || 0
+      })) || [];
+      
+      setStudent(data.student || null);
+      setTodaysClasses(data.todaysClasses || []);
+      setCourseAttendance(processedAttendance);
+      setUpcomingEvents(data.upcomingEvents || []);
+      setSchedule(data.schedule || []);
+    } catch (err) {
+      console.error("Failed to load dashboard data", err);
+      setError("Something went wrong while loading the dashboard.");
+    } finally {
+      setLoading(false);
     }
+  }
 
-    fetchData()
-  }, [])
+  fetchData();
+}, []);
+
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -95,52 +73,59 @@ export default function StudentDashboard() {
 
       <div className="flex-1">
         <main className="p-4 md:p-6 max-w-5xl mx-auto">
+          {/* Error handling */}
+          {error && (
+            <Card className="mb-6 border-red-200 bg-red-50">
+              <CardContent className="p-4 flex items-center">
+                <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
+                <p className="text-red-700">{error}</p>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Welcome Section */}
           <div className="mb-6">
-            {loading.student ? (
+            {loading ? (
               <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
-            ) : error.student ? (
-              <div className="text-red-500">{error.student}</div>
+            ) : student ? (
+              <div>
+                <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
+                  Welcome, {student.name}!
+                </h1>
+                <p className="text-sm text-gray-500">
+                  {student.departmentName || 'N/A'} • Class: {student.className || 'N/A'} • Section: {student.sectionName || 'N/A'}
+                </p>
+              </div>
             ) : (
-              <h1 className="text-xl md:text-2xl font-semibold text-gray-800">Welcome, {student?.name}!</h1>
+              <div className="text-gray-800">Welcome to your dashboard</div>
             )}
           </div>
 
           {/* Today's Classes */}
-          <div className="bg-white rounded-lg shadow mb-6">
+          <Card className="mb-6">
             <div className="p-4 border-b border-gray-200 flex items-center">
               <Clock className="h-5 w-5 text-blue-500 mr-2" />
               <h2 className="text-lg font-medium text-gray-800">Today's Classes</h2>
             </div>
-            <div className="p-4">
-              {loading.classes ? (
+            <CardContent className="p-4">
+              {loading ? (
                 <div className="flex justify-center items-center py-8">
                   <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
                 </div>
-              ) : error.classes ? (
-                <div className="text-center py-6 text-red-500">{error.classes}</div>
-              ) : todaysClasses.length > 0 ? (
+              ) : todaysClasses && todaysClasses.length > 0 ? (
                 <div className="space-y-4">
                   {todaysClasses.map((cls) => (
-                    <div key={cls.id} className="flex flex-col md:flex-row items-start p-3 rounded-lg bg-gray-50">
+                    <div key={`${cls.id}-${cls.time}`} className="flex flex-col md:flex-row items-start p-3 rounded-lg bg-gray-50">
                       <div className="flex-shrink-0 bg-blue-100 rounded-md p-2 mb-2 md:mb-0 md:mr-3">
                         <Calendar className="h-5 w-5 text-blue-600" />
                       </div>
                       <div className="w-full md:w-auto">
-                        <p className="text-sm font-medium text-gray-900">{cls.course}</p>
-                        <p className="text-xs text-gray-500">Code: {cls.course_code}</p>
-                        <p className="text-xs text-gray-500">Professor: {cls.faculty}</p>
-                        <p className="text-xs text-gray-500">Location: {cls.location}</p>
+                        <p className="text-sm font-medium text-gray-900">{cls.name}</p>
+                        <p className="text-xs text-gray-500">Code: {cls.code}</p>
+                        <p className="text-xs text-gray-500">Professor: {cls.facultyName || 'Not assigned'}</p>
+                        <p className="text-xs text-gray-500">Location: {cls.room || 'Room not assigned'}</p>
                         <p className="text-xs text-gray-500">
-                          Time: {cls.start_time} - {cls.end_time}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Schedule:{" "}
-                          {Array.from(
-                            new Set(
-                              schedule.filter((s) => s.course_code === cls.course_code).map((s) => s.day_of_week),
-                            ),
-                          ).join(", ")}
+                          Time: {cls.time}
                         </p>
                       </div>
                     </div>
@@ -151,23 +136,21 @@ export default function StudentDashboard() {
                   <p className="text-gray-500">No classes scheduled for today.</p>
                 </div>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Course Attendance */}
-          <div className="bg-white rounded-lg shadow mb-6">
+          <Card className="mb-6">
             <div className="p-4 border-b border-gray-200 flex items-center">
               <CheckSquare className="h-5 w-5 text-blue-500 mr-2" />
               <h2 className="text-lg font-medium text-gray-800">Course Attendance</h2>
             </div>
-            <div className="p-4">
-              {loading.attendance ? (
+            <CardContent className="p-4">
+              {loading ? (
                 <div className="flex justify-center items-center py-8">
                   <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
                 </div>
-              ) : error.attendance ? (
-                <div className="text-center py-6 text-red-500">{error.attendance}</div>
-              ) : (
+              ) : courseAttendance && courseAttendance.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {courseAttendance.map((course) => (
                     <div key={course.id} className="bg-gray-50 p-4 rounded-lg">
@@ -196,24 +179,26 @@ export default function StudentDashboard() {
                     </div>
                   ))}
                 </div>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-gray-500">No attendance records available.</p>
+                </div>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Upcoming Events */}
-          <div className="bg-white rounded-lg shadow">
+          <Card>
             <div className="p-4 border-b border-gray-200 flex items-center">
               <CalendarDays className="h-5 w-5 text-blue-500 mr-2" />
               <h2 className="text-lg font-medium text-gray-800">Upcoming Events</h2>
             </div>
-            <div className="p-4">
-              {loading.events ? (
+            <CardContent className="p-4">
+              {loading ? (
                 <div className="flex justify-center items-center py-8">
                   <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
                 </div>
-              ) : error.events ? (
-                <div className="text-center py-6 text-red-500">{error.events}</div>
-              ) : (
+              ) : upcomingEvents && upcomingEvents.length > 0 ? (
                 <div className="space-y-4">
                   {upcomingEvents.map((event) => (
                     <div key={event.id} className="flex flex-col md:flex-row items-start p-3 rounded-lg bg-gray-50">
@@ -231,9 +216,13 @@ export default function StudentDashboard() {
                     </div>
                   ))}
                 </div>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-gray-500">No upcoming events.</p>
+                </div>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </main>
       </div>
     </div>

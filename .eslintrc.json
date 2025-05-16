@@ -1,0 +1,37 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "requireConfigFile": false,
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "no-unused-vars": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/no-unescaped-entities": "warn"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2022": true
+  },
+  "overrides": [
+    {
+      "files": ["src/generated/**/*.js"],
+      "rules": {
+        "no-undef": "off",
+        "no-unused-vars": "off",
+        "no-redeclare": "off",
+        "getterrn": "off",
+        "no-cond-assign": "off",
+        "no-useless-escape": "off"
+      }
+    }
+  ]
+}
