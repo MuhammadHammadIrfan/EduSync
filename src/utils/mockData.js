@@ -8,7 +8,6 @@ export const mockDepartments = [
   { id: 4, name: "Artificial Intelligence", code: "AI" },
   { id: 5, name: "Electrical Engineering", code: "EE" },
 ]
-
 // Classes (batches)
 export const mockClasses = [
   { id: 1, name: "CS2020", departmentId: 1 },
@@ -65,7 +64,6 @@ export const mockCurrentFaculty = {
   office_location: "CS Building, Room 305",
   phone: "+92-300-1234567",
 }
-
 // Courses
 export const mockCourses = [
   { id: 1, name: "Data Structures and Algorithms", course_code: "CS201", departmentId: 1, credit_hours: 3 },

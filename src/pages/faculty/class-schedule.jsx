@@ -12,10 +12,8 @@ export default function FacultyClassSchedule() {
   const [error, setError] = useState(null)
   const [currentDay, setCurrentDay] = useState(new Date().getDay() || 7) // 0 is Sunday, 1 is Monday, etc.
   const [viewMode, setViewMode] = useState("day") // 'day' or 'week'
-
   // Map day number to day name
   const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-
   // Get current day name
   const getCurrentDayName = () => {
     return dayNames[currentDay === 7 ? 0 : currentDay]

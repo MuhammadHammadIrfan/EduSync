@@ -11,7 +11,6 @@ import {
   getFacultyTodayClassesSchedule,
   getUpcomingEventsList,
 } from "../../utils/api"
-
 export default function FacultyDashboard() {
   const [faculty, setFaculty] = useState(null)
   const [stats, setStats] = useState(null)
@@ -42,8 +41,6 @@ export default function FacultyDashboard() {
 
     fetchDashboardData()
   }, [])
-
-  // Format time from 24h to 12h format
   const formatTime = (timeString) => {
     const [hours, minutes] = timeString.split(":")
     const hour = Number.parseInt(hours, 10)
@@ -91,7 +88,6 @@ export default function FacultyDashboard() {
                 </p>
               </div>
 
-              {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
                   <div className="flex items-center">
