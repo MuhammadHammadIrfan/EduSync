@@ -77,13 +77,13 @@ export default function FacultyAttendance() {
 
   // Handle attendance status change
   const handleStatusChange = (studentId, newStatus) => {
-    setAttendanceData((prevData) =>
+    setAttendanceData((prevData)=>
       prevData.map((student) => (student.id === studentId ? { ...student, status: newStatus } : student)),
     )
   }
 
   // Handle save attendance
-  const handleSaveAttendance = () => {
+  const handleSaveAttendance = ()=> {
     setIsSaving(true)
 
     // Simulate API call
@@ -101,9 +101,9 @@ export default function FacultyAttendance() {
   // Format time (e.g., "09:00:00" to "9:00 AM")
   const formatTime = (time) => {
     if (!time) return ""
-    const [hours, minutes] = time.split(":")
+    const [hours, minutes]=time.split(":")
     const hour = Number.parseInt(hours)
-    const ampm = hour >= 12 ? "PM" : "AM"
+    const ampm = hour >= 12 ? "PM":"AM"
     const formattedHour = hour % 12 || 12
     return `${formattedHour}:${minutes} ${ampm}`
   }
