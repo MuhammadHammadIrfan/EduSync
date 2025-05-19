@@ -6,7 +6,6 @@ import Head from "next/head"
 import { CheckSquare, Clock, BookOpen, Users, MapPin, Loader2, Save, ArrowLeft } from "lucide-react"
 import FacultySidebar from "../../components/FacultySidebar"
 import { getClassSchedule } from "../../utils/api"
-
 export default function FacultyAttendance() {
   const router = useRouter()
   const { classId } = router.query
@@ -18,7 +17,6 @@ export default function FacultyAttendance() {
   const [attendanceData, setAttendanceData] = useState([])
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
-
   useEffect(() => {
     async function fetchClasses() {
       try {
@@ -49,17 +47,16 @@ export default function FacultyAttendance() {
         setLoading(false)
       }
     }
-
     if (router.isReady) {
       fetchClasses()
     }
   }, [router.isReady, classId])
 
-  // Generate mock student data for attendance
+  
   const generateMockStudentData = (classItem) => {
     // Create mock student data based on the student_count if available
     const count = classItem.student_count || 30
-    const mockStudents = Array.from({ length: count }, (_, i) => ({
+    const mockStudents = Array.from({length: count}, (_, i) => ({
       id: i + 1,
       name: `Student ${i + 1}`,
       studentId: `${classItem.course_code}-${i + 100}`,
