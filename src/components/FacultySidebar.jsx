@@ -18,7 +18,6 @@ import {
   FileText,
 } from 'lucide-react';
 import { getCurrentFaculty } from '../../utils/api/faculty';
-import { logoutUser } from '../../utils/api/common';
 
 // Add custom scrollbar styling
 const scrollbarStyles = `
@@ -160,34 +159,22 @@ export default function FacultySidebar() {
 
         <div className='p-6 border-t border-[#3d5166]'>
           {faculty ? (
-            <>
-              <div className='flex items-center'>
-                <div className='relative w-8 h-8 rounded-full overflow-hidden bg-gray-600'>
-                  <Image
-                    src='/images/user.png'
-                    alt='Faculty profile'
-                    fill
-                    className='object-cover'
-                    unoptimized
-                  />
-                </div>
-                <div className='ml-3'>
-                  <p className='text-sm font-medium'>{faculty.name}</p>
-                  <p className='text-xs text-gray-400'>{faculty.department}</p>
-                </div>
+            <div className='flex items-center'>
+              <div className='relative w-8 h-8 rounded-full overflow-hidden bg-gray-600'>
+                <Image
+                  src='/images/user.png'
+                  alt='Faculty profile'
+                  fill
+                  className='object-cover'
+                  unoptimized
+                />
               </div>
-              
-              {/* Add logout button */}
-              <button
-                onClick={logoutUser}
-                className='mt-4 w-full flex items-center px-4 py-2 text-gray-300 hover:bg-[#1e2a3a] hover:text-white rounded-md transition-colors duration-200'
-              >
-                <X className='mr-3 h-5 w-5' />
-                <span>Sign Out</span>
-              </button>
-            </>
+              <div className='ml-3'>
+                <p className='text-sm font-medium'>{faculty.name}</p>
+                <p className='text-xs text-gray-400'>{faculty.department}</p>
+              </div>
+            </div>
           ) : (
-            // Existing loading state...
             <div className='flex items-center'>
               <div className='w-8 h-8 rounded-full bg-gray-600 animate-pulse'></div>
               <div className='ml-3'>

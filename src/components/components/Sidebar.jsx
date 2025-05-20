@@ -4,7 +4,7 @@ import {
   FiX, FiHome, FiUsers, FiCalendar, FiBookOpen, 
   FiClock, FiFileText, FiMail, FiBarChart2, FiLogOut 
 } from 'react-icons/fi';
-import { logoutUser } from '../../../utils/api/common';
+
 
 export default function Sidebar({ isOpen, toggleSidebar }) {
   const router = useRouter();
@@ -138,9 +138,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
               <p className="text-xs text-gray-400">admin@edusync.com</p>
             </div>
           </div>
-          <button 
-            onClick={logoutUser} 
-            className="mt-4 w-full flex items-center px-4 py-2 text-gray-300 hover:bg-[#3d476e] hover:text-white rounded-md transition-colors duration-200">
+          <button className="mt-4 w-full flex items-center px-4 py-2 text-gray-300 hover:bg-[#3d476e] hover:text-white rounded-md transition-colors duration-200">
             <FiLogOut className="mr-3 h-5 w-5" />
             <span>Sign Out</span>
           </button>

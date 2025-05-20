@@ -16,7 +16,6 @@ import {
   X,
 } from "lucide-react"
 import { getStudentDashboard } from "../../utils/api/student"
-import { logoutUser } from "../../utils/api/common"
 
 // Add custom scrollbar styling
 const scrollbarStyles = `
@@ -173,32 +172,21 @@ export default function StudentSidebar({ activePage }) {
               Error loading profile
             </div>
           ) : student ? (
-            <>
-              <div className="flex items-center">
-                <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-600">
-                    <Image
-                      src="/images/user.png"
-                      alt="Student profile"
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium">{student.name}</p>
-                  <p className="text-xs text-gray-400">Student ID: {student.studentId}</p>
-                </div>
+            <div className="flex items-center">
+              <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-600">
+                  <Image
+                    src="/images/user.png"
+                    alt="Student profile"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
               </div>
-              
-              {/* Add logout button */}
-              <button
-                onClick={logoutUser}
-                className="mt-4 w-full flex items-center px-4 py-2 text-gray-300 hover:bg-[#1e2a3a] hover:text-white rounded-md transition-colors duration-200"
-              >
-                <X className="mr-3 h-5 w-5" />
-                <span>Sign Out</span>
-              </button>
-            </>
+              <div className="ml-3">
+                <p className="text-sm font-medium">{student.name}</p>
+                <p className="text-xs text-gray-400">Student ID: {student.studentId}</p>
+              </div>
+            </div>
           ) : (
             <div className="text-sm">
               No student data available
