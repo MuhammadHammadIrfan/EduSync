@@ -72,3 +72,29 @@ export async function fetchWithAuth(url, options = {}) {
     throw error;
   }
 }
+
+// Add this function to your existing common.js file
+export async function logoutUser() {
+  try {
+    // Call the logout API endpoint
+    const response = await fetch('/api/auth/signout', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Logout failed');
+    }
+
+    // Redirect to the login page
+    window.location.href = '/';
+    
+    return true;
+  } catch (error) {
+    console.error('Error during logout:', error);
+    return false;
+  }
+}
